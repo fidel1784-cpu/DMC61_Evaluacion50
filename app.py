@@ -19,6 +19,7 @@ seccion = st.sidebar.selectbox(
 
 # Contenido según la sección seleccionada
 if seccion == "Home":
+    st.image("logo-dmc-institute-01.png", width=200)
     st.title("Proyecto 1 – Aplicación en Streamlit")
 
     st.subheader("Especialización en Python for Analytics")
