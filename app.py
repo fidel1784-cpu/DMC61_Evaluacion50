@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 
+from libreria_funciones_proyecto1 import calcular_oro_recuperado
+
 # Título principal de la aplicación
 st.title("Especialización Python for Analytics - Evaluación 1")
 
@@ -30,6 +32,10 @@ if "nombres_productos" not in st.session_state:
     st.session_state.precios = np.array([], dtype=float)
     st.session_state.cantidades = np.array([], dtype=int)
     st.session_state.totales = np.array([], dtype=float)
+
+# Histórico para conservar los resultados del Ejercicio 3
+if "historico_oro" not in st.session_state:
+    st.session_state.historico_oro = []
 
 # Contenido según la sección seleccionada
 if seccion == "Home":
@@ -289,7 +295,124 @@ elif seccion == "Ejercicio 2":
         st.write("Todavía no se han registrado productos.")
 
 elif seccion == "Ejercicio 3":
-    st.header("Ejercicio 3")
+    st.title("Ejercicio 3 – Función desde una librería externa")
+
+    st.markdown(
+        """
+        En este ejercicio se utiliza una función importada desde la librería
+        externa `libreria_funciones_proyecto1.py`.
+
+        La función seleccionada permite estimar la cantidad de **oro recuperado**
+        a partir del tonelaje procesado, la ley de oro y el porcentaje de
+        recuperación metalúrgica.
+        """
+    )
+
+    st.subheader("Seleccionar función")
+
+    funcion_seleccionada = st.selectbox(
+        "Función disponible:",
+        ["Calcular oro recuperado"]
+    )
+
+    if funcion_seleccionada == "Calcular oro recuperado":
+        st.subheader("Ingresar parámetros")
+
+        tonelaje = st.number_input(
+            "Tonelaje procesado (t):",
+            min_value=0.0,
+            value=1000.0,
+            step=100.0
+        )
+
+        ley_oro = st.number_input(
+            "Ley de oro (g/t):",
+            min_value=0.0,
+            value=1.0,
+            step=0.1
+        )
+
+        recuperacion = st.number_input(
+            "Recuperación metalúrgica (%):",
+            min_value=0.0,
+            max_value=100.0,
+            value=80.0,
+            step=1.0
+        )
+
+        if st.button("Ejecutar función"):
+            if tonelaje <= 0:
+                st.error("El tonelaje debe ser mayor que cero.")
+
+            elif ley_oro <= 0:
+                st.error("La ley de oro debe ser mayor que cero.")
+
+            elif recuperacion <= 0:
+                st.error(
+                    "La recuperación metalúrgica debe ser mayor que cero."
+                )
+
+            else:
+                resultado = calcular_oro_recuperado(
+                    tonelaje,
+                    ley_oro,
+                    recuperacion
+                )
+
+                gramos_contenidos = resultado["gramos_contenidos"]
+                gramos_recuperados = resultado["gramos_recuperados"]
+                onzas_recuperadas = resultado["onzas_recuperadas"]
+
+                st.success("La función se ejecutó correctamente.")
+
+                st.subheader("Resultado")
+
+                columna1, columna2, columna3 = st.columns(3)
+
+                with columna1:
+                    st.metric(
+                        "Oro contenido",
+                        f"{gramos_contenidos:,.2f} g"
+                    )
+
+                with columna2:
+                    st.metric(
+                        "Oro recuperado",
+                        f"{gramos_recuperados:,.2f} g"
+                    )
+
+                with columna3:
+                    st.metric(
+                        "Oro recuperado",
+                        f"{onzas_recuperadas:,.2f} oz"
+                    )
+
+                nuevo_resultado = {
+                    "Tonelaje (t)": tonelaje,
+                    "Ley de oro (g/t)": ley_oro,
+                    "Recuperación (%)": recuperacion,
+                    "Oro contenido (g)": gramos_contenidos,
+                    "Oro recuperado (g)": gramos_recuperados,
+                    "Oro recuperado (oz)": onzas_recuperadas
+                }
+
+                st.session_state.historico_oro.append(nuevo_resultado)
+
+    st.markdown("---")
+    st.subheader("Histórico de resultados")
+
+    if len(st.session_state.historico_oro) > 0:
+        tabla_historica = pd.DataFrame(
+            st.session_state.historico_oro
+        )
+
+        st.dataframe(
+            tabla_historica,
+            use_container_width=True
+        )
+
+    else:
+        st.write("Todavía no se han realizado cálculos.")
 
 elif seccion == "Ejercicio 4":
     st.header("Ejercicio 4")
