@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from libreria_funciones_proyecto1 import calcular_oro_recuperado
+from libreria_clases_proyecto1 import MuestraMineral
 
 # Título principal de la aplicación
 st.title("Especialización Python for Analytics - Evaluación 1")
@@ -36,6 +37,10 @@ if "nombres_productos" not in st.session_state:
 # Histórico para conservar los resultados del Ejercicio 3
 if "historico_oro" not in st.session_state:
     st.session_state.historico_oro = []
+
+# Lista para conservar las muestras del Ejercicio 4
+if "muestras_minerales" not in st.session_state:
+    st.session_state.muestras_minerales = []
 
 # Contenido según la sección seleccionada
 if seccion == "Home":
@@ -415,7 +420,213 @@ elif seccion == "Ejercicio 3":
         st.write("Todavía no se han realizado cálculos.")
 
 elif seccion == "Ejercicio 4":
-    st.header("Ejercicio 4")
+    st.title("Ejercicio 4 – Clases y operaciones CRUD")
+
+    st.markdown(
+        """
+        En este ejercicio se utiliza la clase `MuestraMineral`, importada
+        desde la librería externa `libreria_clases_proyecto1.py`.
+
+        Se implementan las operaciones **Crear, Leer, Actualizar y Eliminar
+        (CRUD)** para administrar registros de muestras minerales.
+        """
+    )
+
+    clase_seleccionada = st.selectbox(
+        "Seleccione una clase:",
+        ["MuestraMineral"]
+    )
+
+    crear, leer, actualizar, eliminar = st.tabs(
+        ["Crear", "Leer", "Actualizar", "Eliminar"]
+    )
+
+    # CREAR
+    with crear:
+        st.subheader("Registrar muestra mineral")
+
+        codigo = st.text_input(
+            "Código de la muestra:",
+            placeholder="Ejemplo: QM-001",
+            key="crear_codigo"
+        )
+
+        zona = st.text_input(
+            "Zona o dominio:",
+            placeholder="Ejemplo: Sílice masiva",
+            key="crear_zona"
+        )
+
+        ley = st.number_input(
+            "Ley de oro (g/t):",
+            min_value=0.0,
+            value=0.0,
+            step=0.1,
+            key="crear_ley"
+        )
+
+        tonelaje_muestra = st.number_input(
+            "Tonelaje (t):",
+            min_value=0.0,
+            value=0.0,
+            step=100.0,
+            key="crear_tonelaje"
+        )
+
+        if st.button("Crear registro", key="boton_crear"):
+            codigos_existentes = [
+                muestra.codigo
+                for muestra in st.session_state.muestras_minerales
+            ]
+
+            if codigo.strip() == "":
+                st.error("Debe ingresar el código.")
+
+            elif zona.strip() == "":
+                st.error("Debe ingresar la zona o dominio.")
+
+            elif ley <= 0:
+                st.error("La ley debe ser mayor que cero.")
+
+            elif tonelaje_muestra <= 0:
+                st.error("El tonelaje debe ser mayor que cero.")
+
+            elif codigo.strip() in codigos_existentes:
+                st.error("Ya existe una muestra con ese código.")
+
+            else:
+                nueva_muestra = MuestraMineral(
+                    codigo.strip(),
+                    zona.strip(),
+                    ley,
+                    tonelaje_muestra
+                )
+
+                st.session_state.muestras_minerales.append(
+                    nueva_muestra
+                )
+
+                st.success("Muestra creada correctamente.")
+
+    # LEER
+    with leer:
+        st.subheader("Muestras registradas")
+
+        if len(st.session_state.muestras_minerales) > 0:
+            datos = [
+                muestra.obtener_datos()
+                for muestra in st.session_state.muestras_minerales
+            ]
+
+            st.dataframe(
+                pd.DataFrame(datos),
+                use_container_width=True
+            )
+
+        else:
+            st.info("Todavía no se han registrado muestras.")
+
+    # ACTUALIZAR
+    with actualizar:
+        st.subheader("Actualizar muestra")
+
+        if len(st.session_state.muestras_minerales) > 0:
+            codigos = [
+                muestra.codigo
+                for muestra in st.session_state.muestras_minerales
+            ]
+
+            codigo_actualizar = st.selectbox(
+                "Seleccione la muestra:",
+                codigos,
+                key="codigo_actualizar"
+            )
+
+            nueva_zona = st.text_input(
+                "Nueva zona o dominio:",
+                key="nueva_zona"
+            )
+
+            nueva_ley = st.number_input(
+                "Nueva ley de oro (g/t):",
+                min_value=0.0,
+                value=0.0,
+                step=0.1,
+                key="nueva_ley"
+            )
+
+            nuevo_tonelaje = st.number_input(
+                "Nuevo tonelaje (t):",
+                min_value=0.0,
+                value=0.0,
+                step=100.0,
+                key="nuevo_tonelaje"
+            )
+
+            if st.button("Actualizar registro", key="boton_actualizar"):
+                if nueva_zona.strip() == "":
+                    st.error("Debe ingresar la nueva zona.")
+
+                elif nueva_ley <= 0:
+                    st.error("La nueva ley debe ser mayor que cero.")
+
+                elif nuevo_tonelaje <= 0:
+                    st.error(
+                        "El nuevo tonelaje debe ser mayor que cero."
+                    )
+
+                else:
+                    for muestra in st.session_state.muestras_minerales:
+                        if muestra.codigo == codigo_actualizar:
+                            muestra.actualizar(
+                                nueva_zona.strip(),
+                                nueva_ley,
+                                nuevo_tonelaje
+                            )
+                            break
+
+                    st.success(
+                        f"La muestra {codigo_actualizar} fue actualizada."
+                    )
+
+        else:
+            st.info("Primero debe crear una muestra.")
+
+    # ELIMINAR
+    with eliminar:
+        st.subheader("Eliminar muestra")
+
+        if len(st.session_state.muestras_minerales) > 0:
+            codigos = [
+                muestra.codigo
+                for muestra in st.session_state.muestras_minerales
+            ]
+
+            codigo_eliminar = st.selectbox(
+                "Seleccione la muestra:",
+                codigos,
+                key="codigo_eliminar"
+            )
+
+            st.warning(
+                f"Se eliminará la muestra {codigo_eliminar}."
+            )
+
+            if st.button("Eliminar registro", key="boton_eliminar"):
+                st.session_state.muestras_minerales = [
+                    muestra
+                    for muestra in st.session_state.muestras_minerales
+                    if muestra.codigo != codigo_eliminar
+                ]
+
+                st.success(
+                    f"La muestra {codigo_eliminar} fue eliminada."
+                )
+
+                st.rerun()
+
+        else:
+            st.info("No existen muestras para eliminar.")
 
 # Nombre del autor
 st.sidebar.write("---")
