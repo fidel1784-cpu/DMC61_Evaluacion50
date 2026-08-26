@@ -17,8 +17,12 @@ seccion = st.sidebar.selectbox(
     ]
 )
 
+    # Lista para conservar los movimientos registrados
+if "movimientos" not in st.session_state:
 # Contenido según la sección seleccionada
 if seccion == "Home":
+
+    st.session_state.movimientos = []
     st.image("logo-dmc-institute-01.png", width=200)
     st.title("Proyecto 1 – Aplicación en Streamlit")
 
