@@ -39,8 +39,8 @@ if seccion == "Home":
     st.write(
         """
         Este proyecto consiste en desarrollar una aplicación interactiva
-        utilizando Python y Streamlit. La aplicación permitirá poner en
-        práctica los conocimientos adquiridos durante el Módulo 1, como el
+        utilizando GibHub, Python y Streamlit. La aplicación permitirá poner en
+        práctica los conocimientos adquiridos durante la primera parte delcurso de Especializacion en Python for Analitics, como el
         uso de variables, estructuras de datos, control de flujo, funciones,
         programación funcional y programación orientada a objetos.
         """
