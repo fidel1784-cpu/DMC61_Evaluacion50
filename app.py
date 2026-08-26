@@ -58,7 +58,113 @@ if seccion == "Home":
     )
 
 elif seccion == "Ejercicio 1":
-    st.header("Ejercicio 1")
+    st.title("Ejercicio 1 – Flujo de caja con listas")
+
+    st.markdown(
+        """
+        En este ejercicio se registran movimientos financieros en una lista.
+        Cada movimiento contiene un **concepto**, un **tipo de movimiento**
+        y un **valor**.
+
+        Al finalizar, la aplicación muestra los ingresos, los gastos, el saldo
+        y el estado actual del flujo de caja.
+        """
+    )
+
+    st.subheader("Registrar un movimiento")
+
+    concepto = st.text_input(
+        "Concepto del movimiento:",
+        placeholder="Ejemplo: Pago de salario"
+    )
+
+    tipo_movimiento = st.selectbox(
+        "Tipo de movimiento:",
+        ["Ingreso", "Gasto"]
+    )
+
+    valor = st.number_input(
+        "Valor del movimiento (S/):",
+        min_value=0.0,
+        value=0.0,
+        step=10.0
+    )
+
+    if st.button("Agregar movimiento"):
+        if concepto.strip() == "":
+            st.error("Debe ingresar el concepto del movimiento.")
+
+        elif valor <= 0:
+            st.error("El valor del movimiento debe ser mayor que cero.")
+
+        else:
+            movimiento = {
+                "Concepto": concepto,
+                "Tipo": tipo_movimiento,
+                "Valor": valor
+            }
+
+            st.session_state.movimientos.append(movimiento)
+            st.success("Movimiento agregado correctamente.")
+
+    st.markdown("---")
+    st.subheader("Movimientos registrados")
+
+    if len(st.session_state.movimientos) > 0:
+        st.dataframe(
+            st.session_state.movimientos,
+            use_container_width=True
+        )
+
+        total_ingresos = sum(
+            movimiento["Valor"]
+            for movimiento in st.session_state.movimientos
+            if movimiento["Tipo"] == "Ingreso"
+        )
+
+        total_gastos = sum(
+            movimiento["Valor"]
+            for movimiento in st.session_state.movimientos
+            if movimiento["Tipo"] == "Gasto"
+        )
+
+        saldo_final = total_ingresos - total_gastos
+
+        st.subheader("Resumen del flujo de caja")
+
+        columna1, columna2, columna3 = st.columns(3)
+
+        with columna1:
+            st.metric(
+                "Total de ingresos",
+                f"S/ {total_ingresos:.2f}"
+            )
+
+        with columna2:
+            st.metric(
+                "Total de gastos",
+                f"S/ {total_gastos:.2f}"
+            )
+
+        with columna3:
+            st.metric(
+                "Saldo final",
+                f"S/ {saldo_final:.2f}"
+            )
+
+        if saldo_final >= 0:
+            st.success(
+                f"El flujo de caja está a favor con un saldo de "
+                f"S/ {saldo_final:.2f}."
+            )
+        else:
+            st.error(
+                f"El flujo de caja está en contra con un saldo de "
+                f"S/ {saldo_final:.2f}."
+            )
+
+    else:
+        st.write("Todavía no se han registrado movimientos.")
 
 elif seccion == "Ejercicio 2":
     st.header("Ejercicio 2")
