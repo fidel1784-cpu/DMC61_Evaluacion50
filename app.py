@@ -4,16 +4,7 @@ st.title("Especialización Python for Analytics - Evaluación 1")
 # Menú lateral de navegación
 st.sidebar.title("Menú")
 
-seccion = st.sidebar.selectbox(
-    "Seleccione una sección:",
-    [
-        "Home",
-        "Ejercicio 1",
-        "Ejercicio 2",
-        "Ejercicio 3",
-        "Ejercicio 4"
-    ]
-)
+seccion = st.sidebar.selectbox("Seleccione una sección:", ["Home","Ejercicio 1","Ejercicio 2","Ejercicio 3","Ejercicio 4"])
 
 # Contenido según la sección seleccionada
 if seccion == "Home":
